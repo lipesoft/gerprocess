@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  GESTOR
+  ENGENHEIRO
+  AUDITOR
+  FINANCEIRO
+}
+
+enum ContractStatus {
+  EM_ANDAMENTO
+  CONCLUIDO
+  PENDENTE
+  CANCELADO
+}
+
+enum PaymentStatus {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
+}
+
+model User {
+  id              String    @id @default(uuid())
+  name            String
+  cpf             String    @unique
+  email           String    @unique
+  password        String
+  role            Role      @default(ENGENHEIRO)
+  isActive        Boolean   @default(true)
+  twoFactorSecret String?
+  twoFactorEnabled Boolean  @default(false)
+  resetToken      String?
+  resetTokenExpiry DateTime?
+  lastLogin       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  contracts       Contract[]    @relation("ContractResponsible")
+  createdContracts Contract[]   @relation("ContractCreator")
+  comments        Comment[]
+  auditLogs       AuditLog[]
+  notifications   Notification[]
+
+  @@map("users")
+}
+
+model Contract {
+  id              String          @id @default(uuid())
+  name            String
+  contractNumber  String          @unique
+  company         String
+  workType        String
+  objective       String?
+  totalValue      Decimal         @db.Decimal(15, 2)
+  currentBalance  Decimal         @db.Decimal(15, 2)
+  startDate       DateTime
+  endDate         DateTime
+  status          ContractStatus  @default(PENDENTE)
+  responsibleId   String
+  createdById     String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  responsible     User            @relation("ContractResponsible", fields: [responsibleId], references: [id])
+  createdBy       User            @relation("ContractCreator", fields: [createdById], references: [id])
+  documents       Document[]
+  payments        Payment[]
+  comments        Comment[]
+  history         ContractHistory[]
+
+  @@index([status])
+  @@index([endDate])
+  @@index([responsibleId])
+  @@map("contracts")
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  contractId  String
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  path        String
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+
+  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  contractId  String
+  description String
+  value       Decimal       @db.Decimal(15, 2)
+  dueDate     DateTime
+  paidDate    DateTime?
+  status      PaymentStatus @default(PENDENTE)
+  invoiceNumber String?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  contract    Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([dueDate])
+  @@map("payments")
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  contractId  String
+  userId      String
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model ContractHistory {
+  id          String   @id @default(uuid())
+  contractId  String
+  field       String
+  oldValue    String?
+  newValue    String?
+  changedBy   String
+  changedAt   DateTime @default(now())
+
+  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@map("contract_history")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+  @@map("notifications")
+}
