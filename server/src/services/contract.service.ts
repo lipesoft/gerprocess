@@ -76,6 +76,22 @@ export class ContractService {
     return contract;
   }
 
+  async addComment(contractId: string, userId: string, content: string) {
+    const contract = await prisma.contract.findUnique({ where: { id: contractId } });
+    if (!contract) throw new Error('Contrato não encontrado');
+
+    return prisma.comment.create({
+      data: {
+        contractId,
+        userId,
+        content,
+      },
+      include: {
+        user: { select: { id: true, name: true } },
+      },
+    });
+  }
+
   async list(filters: ListContractsFilter) {
     const { status, search, responsibleId, page = 1, limit = 20 } = filters;
     const skip = (page - 1) * limit;

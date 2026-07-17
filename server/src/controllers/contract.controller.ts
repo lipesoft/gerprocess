@@ -30,6 +30,10 @@ const updateSchema = z.object({
   responsibleId: z.string().uuid().optional(),
 });
 
+const commentSchema = z.object({
+  content: z.string().min(2).max(2000),
+});
+
 export class ContractController {
   async create(req: Request, res: Response) {
     try {
@@ -55,6 +59,21 @@ export class ContractController {
       res.json(contract);
     } catch (error: any) {
       res.status(404).json({ error: error.message });
+    }
+  }
+
+  async addComment(req: Request, res: Response) {
+    try {
+      const { content } = commentSchema.parse(req.body);
+      const comment = await contractService.addComment(req.params.id, req.user!.userId, content);
+
+      await auditLog(req.user!.userId, 'COMMENT', 'contract', req.params.id, content, req);
+      res.status(201).json(comment);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Dados inválidos', details: error.errors });
+      }
+      res.status(400).json({ error: error.message });
     }
   }
 

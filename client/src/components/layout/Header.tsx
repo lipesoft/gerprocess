@@ -1,41 +1,60 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, ShieldCheck } from 'lucide-react';
 
 export default function Header() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    navigate(query ? `/contracts?search=${encodeURIComponent(query)}` : '/contracts');
+  };
+
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-40">
-      {/* Search */}
-      <div className="flex items-center gap-3 flex-1 max-w-md">
+    <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6 lg:px-8">
+      <div className="flex items-center gap-3 lg:hidden">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-800 text-sm font-bold text-white">
+          GP
+        </div>
+        <span className="text-sm font-semibold text-slate-900">Gerprocess</span>
+      </div>
+
+      <form onSubmit={handleSearch} className="hidden max-w-md flex-1 items-center gap-3 sm:flex">
         <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
             placeholder="Buscar contratos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="input-field pl-10"
           />
         </div>
-      </div>
+      </form>
 
-      {/* Right side */}
-      <div className="flex items-center gap-4">
-        {/* Notifications */}
-        <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+      <div className="flex items-center gap-3">
+        <div className="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200 md:flex">
+          <ShieldCheck size={14} />
+          Ambiente seguro
+        </div>
+
+        <button
+          aria-label="Notificações"
+          className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+        >
           <Bell size={20} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500" />
         </button>
 
-        {/* User info */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-sm font-medium">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-700 text-sm font-semibold text-white">
             {user?.name?.charAt(0).toUpperCase()}
           </div>
-          <span className="text-sm font-medium text-gray-700">{user?.name}</span>
+          <span className="hidden text-sm font-medium text-slate-700 md:block">{user?.name}</span>
         </div>
       </div>
     </header>

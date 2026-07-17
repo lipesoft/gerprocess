@@ -33,6 +33,7 @@ router.get('/contracts', authenticate, contractController.list);
 router.get('/contracts/dashboard', authenticate, contractController.dashboard);
 router.get('/contracts/calendar', authenticate, contractController.calendar);
 router.get('/contracts/:id', authenticate, contractController.findById);
+router.post('/contracts/:id/comments', authenticate, contractController.addComment);
 router.post('/contracts', authenticate, authorize(Role.ADMIN, Role.GESTOR, Role.ENGENHEIRO), contractController.create);
 router.put('/contracts/:id', authenticate, authorize(Role.ADMIN, Role.GESTOR, Role.ENGENHEIRO), contractController.update);
 router.delete('/contracts/:id', authenticate, authorize(Role.ADMIN, Role.GESTOR), contractController.delete);

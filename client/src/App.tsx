@@ -10,6 +10,7 @@ import ContractDetailPage from './pages/ContractDetailPage';
 import NewContractPage from './pages/NewContractPage';
 import UsersPage from './pages/UsersPage';
 import SettingsPage from './pages/SettingsPage';
+import ReportsPage from './pages/ReportsPage';
 import Layout from './components/layout/Layout';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="contracts" element={<ContractsPage />} />
         <Route path="contracts/new" element={<NewContractPage />} />
         <Route path="contracts/:id" element={<ContractDetailPage />} />
+        <Route path="reports" element={<ReportsPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

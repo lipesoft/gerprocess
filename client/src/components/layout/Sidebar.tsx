@@ -11,11 +11,11 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { to: '/dashboard', label: 'Home', icon: LayoutDashboard },
+  { to: '/dashboard', label: 'Painel', icon: LayoutDashboard },
   { to: '/contracts', label: 'Contratos', icon: FileText },
-  { to: '/contracts/new', label: 'Novo Fluxo', icon: PlusCircle },
+  { to: '/contracts/new', label: 'Novo contrato', icon: PlusCircle },
   { to: '/reports', label: 'Relatórios', icon: BarChart3 },
-  { to: '/users', label: 'Administração', icon: Users, roles: ['ADMIN'] },
+  { to: '/users', label: 'Usuários', icon: Users, roles: ['ADMIN'] },
   { to: '/settings', label: 'Configurações', icon: Settings },
 ];
 
@@ -27,29 +27,34 @@ export default function Sidebar() {
   );
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-primary-600 text-white flex flex-col z-50">
-      {/* Logo */}
-      <div className="p-6 border-b border-primary-500">
-        <h1 className="text-2xl font-bold tracking-tight">Gerprocess</h1>
-        <p className="text-primary-200 text-sm mt-1">Gestão de Contratos</p>
+    <aside className="fixed left-0 top-0 z-50 hidden h-screen w-64 flex-col border-r border-primary-800 bg-primary-900 text-white lg:flex">
+      <div className="border-b border-white/10 p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white font-bold text-primary-800">
+            GP
+          </div>
+          <div>
+            <h1 className="text-lg font-semibold tracking-tight">Gerprocess</h1>
+            <p className="text-xs text-primary-100">Contratos de obras</p>
+          </div>
+        </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-4 overflow-y-auto">
+      <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-1 px-3">
           {filteredItems.map((item) => (
             <li key={item.to}>
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors duration-200 ${
                     isActive
-                      ? 'bg-primary-700 text-white font-medium'
-                      : 'text-primary-100 hover:bg-primary-500 hover:text-white'
+                      ? 'bg-white text-primary-900 font-semibold shadow-sm'
+                      : 'text-primary-100 hover:bg-white/10 hover:text-white'
                   }`
                 }
               >
-                <item.icon size={20} />
+                <item.icon size={18} />
                 <span>{item.label}</span>
               </NavLink>
             </li>
@@ -57,20 +62,19 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      {/* User section */}
-      <div className="p-4 border-t border-primary-500">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-accent-400 flex items-center justify-center text-primary-900 font-bold">
+      <div className="border-t border-white/10 p-4">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-400 font-bold text-primary-950">
             {user?.name?.charAt(0).toUpperCase()}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.name}</p>
-            <p className="text-xs text-primary-200 truncate">{user?.role}</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">{user?.name}</p>
+            <p className="truncate text-xs text-primary-100">{user?.role}</p>
           </div>
         </div>
         <button
           onClick={logout}
-          className="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-200 hover:text-white hover:bg-primary-500 rounded-lg transition-colors"
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-primary-100 transition-colors hover:bg-white/10 hover:text-white"
         >
           <LogOut size={16} />
           <span>Sair</span>
